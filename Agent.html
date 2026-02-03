@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Creative | Experimental Digital Studio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-tilt@1.7.2/dist/vanilla-tilt.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #11111f;
+            --neon-pink: #ff00ff;
+            --neon-cyan: #00ffff;
+            --neon-green: #00ffaa;
+            --neon-yellow: #ffff00;
+            --neon-purple: #9d00ff;
+            --text-primary: #f0f0f0;
+            --text-secondary: #b0b0d0;
+            --accent: #9d4edd;
+            --transition-speed: 0.5s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.3;
+        }
+
+        .cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(0, 255, 255, 0.7);
+            box-shadow: 0 0 10px var(--neon-cyan);
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.2s;
+        }
+
+        .cursor-follower {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 0, 255, 0.5);
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.6s ease;
+        }
+
+        .nav-container {
+            position: fixed;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            z-index: 100;
+        }
+
+        .circular-nav {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .nav-toggle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--neon-pink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--neon-pink);
+            z-index: 2;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+        }
+
+        .nav-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.6);
+        }
+
+        .nav-item {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: rotate(0deg) translateX(120px) rotate(0deg);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: var(--bg-secondary);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .nav-item.active {
+            opacity: 1;
+        }
+
+        .section-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+            border-radius: 2px;
+        }
+
+        section {
+            min-height: 100vh;
+            padding: 100px 5% 50px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 6rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--neon-pink), var(--neon-cyan), var(--neon-green));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            line-height: 1;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            max-width: 800px;
+            margin-bottom: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .logo-container {
+            position: relative;
+            margin-bottom: 3rem;
+            transition: all 0.5s;
+        }
+
+        .logo {
+            font-size: 5rem;
+            color: var(--neon-pink);
+            text-shadow: 0 0 20px rgba(255, 0, 255, 0.7);
+            transition: all 0.5s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--neon-cyan);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 0;
+        }
+
+        .works-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
+        }
+
+        .work-item {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            transition: all 0.4s;
+            position: relative;
+            height: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+            cursor: pointer;
+        }
+
+        .work-item:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.25);
+            transform: translateY(-15px) scale(1.02);
+        }
+
+        .work-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+            z-index: 1;
+        }
+
+        .work-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--neon-green);
+        }
+
+        .work-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+            color: var(--neon-green);
+            font-weight: 600;
+        }
+
+        .work-desc {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .work-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-top: 1rem;
+        }
+
+        .work-tag {
+            background: rgba(157, 78, 221, 0.2);
+            padding: 0.3rem 0.9rem;
+            border-radius: 20px;
+            border: 1px solid var(--accent);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .about-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .skill {
+            background: rgba(157, 78, 221, 0.2);
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            border: 1px solid var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .contact-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: rgba(255, 0, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid var(--neon-pink);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .contact-link:hover {
+            background: rgba(255, 0, 255, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(255, 0, 255, 0.2);
+        }
+
+        .scroll-sticky {
+            position: sticky;
+            top: 100px;
+            margin-bottom: 100px;
+            transition: all 0.5s;
+        }
+
+        .scroll-scale {
+            transform-origin: center;
+            transition: transform 0.5s;
+        }
+
+        .scroll-color {
+            transition: color 0.5s, background 0.5s;
+        }
+
+        footer {
+            padding: 3rem 5%;
+            border-top: 1px solid rgba(255, 0, 255, 0.2);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1024px) {
+            .hero h1 {
+                font-size: 4rem;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-container {
+                right: 15px;
+            }
+            
+            .works-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .section-title {
+                font-size: 2.5rem;
+            }
+            
+            .works-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .circular-nav {
+                transform: scale(0.8);
+            }
+            
+            .contact-links {
+                flex-direction: column;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .float {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @view-transition {
+            navigation: auto;
+        }
+        
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+            animation-duration: 0.5s;
+        }
+
+        .project-neuro {
+            border-color: rgba(0, 255, 255, 0.3) !important;
+        }
+        
+        .project-neuro::before {
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-green)) !important;
+        }
+        
+        .project-quantum {
+            border-color: rgba(255, 0, 255, 0.3) !important;
+        }
+        
+        .project-quantum::before {
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple)) !important;
+        }
+        
+        .project-cosmic {
+            border-color: rgba(157, 0, 255, 0.3) !important;
+        }
+        
+        .project-cosmic::before {
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-cyan)) !important;
+        }
+        
+        .project-aether {
+            border-color: rgba(0, 255, 170, 0.3) !important;
+        }
+        
+        .project-aether::before {
+            background: linear-gradient(90deg, var(--neon-green), var(--neon-cyan)) !important;
+        }
+        
+        .project-chroma {
+            border-color: rgba(255, 255, 0, 0.3) !important;
+        }
+        
+        .project-chroma::before {
+            background: linear-gradient(90deg, var(--neon-yellow), var(--neon-green)) !important;
+        }
+        
+        .project-synth {
+            border-color: rgba(255, 0, 255, 0.3) !important;
+        }
+        
+        .project-synth::before {
+            background: linear-gradient(90deg, var(--neon-pink), var(--neon-yellow)) !important;
+        }
+        
+        .project-holo {
+            border-color: rgba(0, 255, 255, 0.3) !important;
+        }
+        
+        .project-holo::before {
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <div class="nav-container">
+        <div class="circular-nav">
+            <button class="nav-toggle" id="navToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="#home" class="nav-item active" data-nav="home">Home</a>
+            <a href="#works" class="nav-item" data-nav="works">Projects</a>
+            <a href="#about" class="nav-item" data-nav="about">About</a>
+            <a href="#contact" class="nav-item" data-nav="contact">Contact</a>
+        </div>
+    </div>
+
+    <section id="home" class="hero">
+        <div class="logo-container" id="logoContainer">
+            <div class="logo" id="logo">NEXUS</div>
+        </div>
+        <h1>PLAYFUL EXPERIMENTAL</h1>
+        <p>Creative agency crafting immersive digital universes for bold brands, startups, and artists.</p>
+        <div class="scroll-hint">
+            <i class="fas fa-chevron-down float" style="font-size: 2rem; color: var(--neon-cyan);"></i>
+        </div>
+    </section>
+
+    <section id="works">
+        <h2 class="section-title scroll-sticky">Our Projects</h2>
+        <div class="works-grid">
+            <div class="work-item project-neuro" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-perspective="1000">
+                <div class="work-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="work-title">NeuroSync App</div>
+                <div class="work-desc">Interactive application with neuro-animations, adaptive UI, and biometric feedback.</div>
+                <div class="work-tags">
+                    <span class="work-tag">UI/UX</span>
+                    <span class="work-tag">Interactive</span>
+                    <span class="work-tag">Biometrics</span>
+                </div>
+            </div>
+
+            <div class="work-item project-quantum" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-perspective="1000">
+                <div class="work-icon">
+                    <i class="fas fa-atom"></i>
+                </div>
+                <div class="work-title">Quantum Brand</div>
+                <div class="work-desc">Branding and web platform for quantum computing startup with dynamic 3D data visualization.</div>
+                <div class="work-tags">
+                    <span class="work-tag">Branding</span>
+                    <span class="work-tag">3D WebGL</span>
+                    <span class="work-tag">Dynamic</span>
+                </div>
+            </div>
+
+            <div class="work-item project-cosmic" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-perspective="1000">
+                <div class="work-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <div class="work-title">Cosmic Gallery</div>
+                <div class="work-desc">Immersive online digital art gallery with parallax navigation and spatial audio.</div>
+                <div class="work-tags">
+                    <span class="work-tag">Immersive</span>
+                    <span class="work-tag">WebAudio</span>
+                    <span class="work-tag">Parallax</span>
+                </div>
+            </div>
+
+            <div class="work-item project-aether" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-perspective="1000">
+                <div class="work-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="work-title">Aether UI System</div>
+                <div class="work-desc">Design system with neon aesthetics, dynamic components, and holographic effects.</div>
+                <div class="work-tags">
+                    <span class="work-tag">Design System</span>
+                    <span class="work-tag">Components</span>
+                    <span class="work-tag">Effects</span>
+                </div>
+            </div>
+
+            <div class="work-item project-chroma" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-perspective="1000">
+                <div class="work-icon">
+                    <i class="fas fa-palette"></i>
+                </div>
+                <div class="work-title">Chroma Studio</div>
+                <div class="work-desc">AI-powered color palette generator with interactive 3D gradient visualization.</div>
+                <div class="work-tags">
+                    <span class="work-tag">AI</span>
+                    <span class="work-tag">Color</span>
+                    <span class="work-tag">Generation</span>
+                </div>
+            </div>
+
+            <div class="work-item project-synth" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-perspective="1000">
+                <div class="work-icon">
+                    <i class="fas fa-music"></i>
+                </div>
+                <div class="work-title">Synthwave Platform</div>
+                <div class="work-desc">Platform for electronic musicians with visual sound synthesizer and retro-futuristic UI.</div>
+                <div class="work-tags">
+                    <span class="work-tag">Audio</span>
+                    <span class="work-tag">Retro-futurism</span>
+                    <span class="work-tag">Synthesizer</span>
+                </div>
+            </div>
+
+            <div class="work-item project-holo" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-perspective="1000">
+                <div class="work-icon">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                <div class="work-title">Holo Fashion AR</div>
+                <div class="work-desc">AR app for trying on digital clothing with holographic effects and social integration.</div>
+                <div class="work-tags">
+                    <span class="work-tag">AR</span>
+                    <span class="work-tag">Fashion</span>
+                    <span class="work-tag">Social</span>
+                </div>
+            </div>
+
+            <div class="work-item project-neuro" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-perspective="1000">
+                <div class="work-icon">
+                    <i class="fas fa-chart-network"></i>
+                </div>
+                <div class="work-title">Nebula Dashboard</div>
+                <div class="work-desc">Mission control dashboard for space operations with real-time data and interstellar visualization.</div>
+                <div class="work-tags">
+                    <span class="work-tag">DataViz</span>
+                    <span class="work-tag">Real-time</span>
+                    <span class="work-tag">Space</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <h2 class="section-title scroll-color">About Us</h2>
+        <div class="about-content">
+            <div class="about-text scroll-scale">
+                <p>Nexus Creative is an experimental studio at the intersection of technology, design, and art. We create digital products that captivate and surprise.</p>
+                <p>Our team unites designers, developers, and animators who believe digital experiences can be magical, intuitive, and emotional.</p>
+                <p>We specialize in scroll-driven animations, unconventional interactions, and immersive web solutions for creative brands, tech startups, and digital artists.</p>
+                <div class="skills">
+                    <span class="skill">Scroll-Driven Animations</span>
+                    <span class="skill">WebGL/Three.js</span>
+                    <span class="skill">GSAP + ScrollTrigger</span>
+                    <span class="skill">View Transitions API</span>
+                    <span class="skill">Interactive Design</span>
+                    <span class="skill">3D Graphics</span>
+                    <span class="skill">AR/VR Solutions</span>
+                    <span class="skill">Neon Aesthetics</span>
+                </div>
+            </div>
+            <div class="about-visual">
+                <div style="width: 100%; height: 400px; background: linear-gradient(135deg, rgba(255,0,255,0.1), rgba(0,255,255,0.1)); border-radius: 20px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                    <div style="position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at 30% 30%, rgba(255,0,255,0.2) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(0,255,255,0.2) 0%, transparent 50%);"></div>
+                    <i class="fas fa-infinity pulse" style="font-size: 8rem; color: var(--neon-pink); opacity: 0.8;"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <h2 class="section-title">Get In Touch</h2>
+        <p style="font-size: 1.5rem; margin-bottom: 2rem; max-width: 800px;">Ready to create something extraordinary? Let's discuss your project!</p>
+        <div class="contact-links">
+            <a href="mailto:hello@nexuscreative.studio" class="contact-link">
+                <i class="fas fa-envelope"></i> hello@nexuscreative.studio
+            </a>
+            <a href="https://t.me/nexuscreative" class="contact-link">
+                <i class="fab fa-telegram"></i> @nexuscreative
+            </a>
+            <a href="https://instagram.com/nexuscreative" class="contact-link">
+                <i class="fab fa-instagram"></i> @nexuscreative
+            </a>
+            <a href="https://behance.net/nexuscreative" class="contact-link">
+                <i class="fab fa-behance"></i> nexuscreative
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2024 Nexus Creative Studio. Universe of experimental design.</p>
+        <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.7;">Powered by View Transitions API, GSAP ScrollTrigger, Vanilla Tilt, and magic ✨</p>
+    </footer>
+
+    <script>
+        if (!document.startViewTransition) {
+            document.startViewTransition = (callback) => {
+                callback();
+                return {
+                    ready: Promise.resolve(),
+                    finished: Promise.resolve(),
+                    updateCallbackDone: Promise.resolve(),
+                };
+            };
+        }
+
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }, 100);
+        });
+        
+        const magneticElements = document.querySelectorAll('.nav-item, .contact-link, .work-item, .logo-container');
+        magneticElements.forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                if (el.classList.contains('work-item')) return;
+                
+                const rect = el.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const deltaX = (x - centerX) * 0.1;
+                const deltaY = (y - centerY) * 0.1;
+                
+                el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            });
+            
+            el.addEventListener('mouseleave', () => {
+                el.style.transform = 'translate(0, 0)';
+            });
+        });
+
+        const navToggle = document.getElementById('navToggle');
+        const navItems = document.querySelectorAll('.nav-item');
+        let navActive = false;
+        
+        navToggle.addEventListener('click', () => {
+            navActive = !navActive;
+            
+            navItems.forEach((item, index) => {
+                if (navActive) {
+                    const angle = (index * 90) + 180;
+                    const radius = 120;
+                    const x = radius * Math.cos(angle * Math.PI / 180);
+                    const y = radius * Math.sin(angle * Math.PI / 180);
+                    
+                    item.style.transform = `translate(${x}px, ${y}px)`;
+                    item.style.opacity = '1';
+                    item.style.pointerEvents = 'auto';
+                } else {
+                    item.style.transform = 'rotate(0deg) translateX(120px) rotate(0deg)';
+                    item.style.opacity = '0';
+                    item.style.pointerEvents = 'none';
+                }
+            });
+            
+            navToggle.style.transform = navActive ? 'rotate(45deg)' : 'rotate(0)';
+            navToggle.innerHTML = navActive ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+        });
+
+        const logoContainer = document.getElementById('logoContainer');
+        const logo = document.getElementById('logo');
+        
+        logoContainer.addEventListener('mouseenter', () => {
+            logo.style.textShadow = '0 0 40px rgba(255, 0, 255, 0.9), 0 0 60px rgba(0, 255, 255, 0.7)';
+            logo.style.transform = 'scale(1.1) rotate(5deg)';
+            logo.style.color = '#ffff00';
+            
+            for (let i = 0; i < 25; i++) {
+                createParticle(i);
+            }
+            
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(880, audioContext.currentTime + 0.2);
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } catch(e) {
+                console.log("Audio context not supported");
+            }
+        });
+        
+        logoContainer.addEventListener('mouseleave', () => {
+            logo.style.textShadow = '0 0 20px rgba(255, 0, 255, 0.7)';
+            logo.style.transform = 'scale(1) rotate(0)';
+            logo.style.color = '';
+        });
+        
+        function createParticle(index) {
+            const particle = document.createElement('div');
+            particle.classList.add('logo-particle');
+            
+            const size = Math.random() * 12 + 3;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            const colors = [getComputedStyle(document.documentElement).getPropertyValue('--neon-pink'), 
+                          getComputedStyle(document.documentElement).getPropertyValue('--neon-cyan'),
+                          getComputedStyle(document.documentElement).getPropertyValue('--neon-green'),
+                          getComputedStyle(document.documentElement).getPropertyValue('--neon-yellow')];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.background = color.trim();
+            particle.style.boxShadow = `0 0 10px ${color.trim()}`;
+            
+            const posX = 50 + (Math.random() - 0.5) * 40;
+            const posY = 50 + (Math.random() - 0.5) * 40;
+            particle.style.left = `${posX}%`;
+            particle.style.top = `${posY}%`;
+            
+            logoContainer.appendChild(particle);
+            
+            gsap.to(particle, {
+                x: (Math.random() - 0.5) * 300,
+                y: (Math.random() - 0.5) * 300,
+                opacity: 0.9,
+                scale: Math.random() * 0.5 + 0.5,
+                duration: 1.2,
+                delay: index * 0.02,
+                ease: "power2.out",
+                onComplete: () => {
+                    gsap.to(particle, {
+                        opacity: 0,
+                        scale: 0,
+                        duration: 0.5,
+                        onComplete: () => {
+                            particle.remove();
+                        }
+                    });
+                }
+            });
+        }
+
+        gsap.registerPlugin(ScrollTrigger);
+        
+        gsap.to('.scroll-sticky', {
+            scrollTrigger: {
+                trigger: '#works',
+                start: 'top 100px',
+                end: 'bottom top',
+                scrub: 1,
+                pin: false
+            },
+            y: 100,
+            scale: 0.9,
+            opacity: 0.8
+        });
+        
+        gsap.to('.scroll-color', {
+            scrollTrigger: {
+                trigger: '#about',
+                start: 'top center',
+                end: 'bottom center',
+                scrub: 1
+            },
+            color: '#ff00ff'
+        });
+        
+        gsap.to('.scroll-scale', {
+            scrollTrigger: {
+                trigger: '#about',
+                start: 'top center',
+                end: 'bottom center',
+                scrub: 1
+            },
+            scale: 1.05
+        });
+        
+        gsap.from('.work-item', {
+            scrollTrigger: {
+                trigger: '#works',
+                start: 'top 80%',
+                toggleActions: 'play none none reverse'
+            },
+            y: 100,
+            opacity: 0,
+            stagger: 0.1,
+            duration: 1,
+            ease: "power2.out"
+        });
+
+        if (typeof VanillaTilt !== 'undefined') {
+            VanillaTilt.init(document.querySelectorAll("[data-tilt]"), {
+                max: 15,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.3,
+                scale: 1.05
+            });
+        }
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = item.getAttribute('href').substring(1);
+                
+                document.startViewTransition(() => {
+                    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth' });
+                    
+                    navItems.forEach(navItem => navItem.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    if (window.innerWidth <= 768 && navActive) {
+                        navToggle.click();
+                    }
+                });
+            });
+        });
+
+        const sections = document.querySelectorAll('section');
+        
+        const updateActiveNav = () => {
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (window.scrollY >= (sectionTop - 300)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href').substring(1) === current) {
+                    item.classList.add('active');
+                }
+            });
+        };
+        
+        window.addEventListener('scroll', updateActiveNav);
+        
+        document.querySelectorAll('.work-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const title = this.querySelector('.work-title').textContent;
+                const desc = this.querySelector('.work-desc').textContent;
+                
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(10, 10, 15, 0.95);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    backdrop-filter: blur(10px);
+                `;
+                
+                modal.innerHTML = `
+                    <div style="background: var(--bg-secondary); border-radius: 20px; padding: 3rem; max-width: 600px; width: 90%; border: 2px solid var(--neon-cyan); position: relative;">
+                        <button style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--neon-cyan); font-size: 2rem; cursor: pointer;">×</button>
+                        <h2 style="color: var(--neon-green); font-size: 2.5rem; margin-bottom: 1.5rem;">${title}</h2>
+                        <p style="color: var(--text-secondary); font-size: 1.2rem; line-height: 1.6; margin-bottom: 2rem;">${desc}</p>
+                        <p style="color: var(--text-primary); font-size: 1.1rem;">This is one of our experimental projects where we used cutting-edge technologies to create a unique user experience.</p>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                modal.querySelector('button').addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                });
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateActiveNav();
+            
+            document.documentElement.style.setProperty('--neon-pink', '#ff00ff');
+            document.documentElement.style.setProperty('--neon-cyan', '#00ffff');
+            document.documentElement.style.setProperty('--neon-green', '#00ffaa');
+            document.documentElement.style.setProperty('--neon-yellow', '#ffff00');
+            document.documentElement.style.setProperty('--neon-purple', '#9d00ff');
+        });
+    </script>
+</body>
+                  </html>
